@@ -1,26 +1,39 @@
-version: "1"
+version: '1.0'
 services:
-  my-info-app:
-    # container_name: spring-app
-    image: my-info-app
-    restart: always
-    build: .
-    ports:
-      - 9000-9010:9090
-    environment:
-      MYSQL_HOST: mysqldb
-      MYSQL_USER: root
-      MYSQL_PASSWORD: angad@db
-      MYSQL_PORT: 3306
-
-  mysqldb:
+  mysql:
     container_name: mysqldb
     image: mysql
     volumes:
-      - /home/user/Desktop/db:/var/lib/mysql
+      - mysql-data:/var/lib/mysql  # Volume configuration for MySQL data
     ports:
       - 3307:3306
     environment:
       MYSQL_DATABASE: my-info
       MYSQL_ROOT_PASSWORD: angad@db
+    networks:
+      - my-info-app-network
+
+  my-info-app:
+    #container_name: k8s-mysql-demo-container
+    image: my-info-app
+    restart: always
+    build: .
+    ports:
+      - 9000-9010:9090
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysqldb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: angad@db
+      MYSQL_PORT: 3306
+    networks:
+      - my-info-app-network
+
+networks:
+  my-info-app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:  # Define a named volume for MySQL data persistence
 
